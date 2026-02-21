@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Home - Store{% endblock %}
+{% block content %}
+<div class="store-container">
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Welcome to My Store</h1>
+         <p>This project uses Flask, SQLAlchemy for database management, Product images are handled with file uploads, and user authentication is secured with hashed passwords.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-section">
+        <input type="text" placeholder="Search products..." class="search-input">
+        <button class="search-btn">Search</button>
+    </div>
+
+    <!-- Categories
+    <div class="categories">
+        <div class="category-item">Electronics</div>
+        <div class="category-item">Fashion</div>
+        <div class="category-item">Home</div>
+        <div class="category-item">Sports</div>
+        <div class="category-item">Books</div>
+    </div> -->
+
+    <!-- Products Grid -->
+    <div class="products-section">
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                      <h5> {{msg}} </h5>  
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        
+        <h2>Featured Products</h2>
+        <div class="products-grid">
+            <!-- Product Card -->
+              {% for product in products %}
+            <div class="product-card">
+                <a href="{{ url_for('productPage', product_id=product._id) }}">
+                    <div class="product-image">
+                        <img src="{{  product.image_url }}" alt="{{ product.product_name }}">
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.product_name }}</h3>
+                        <p class="price">{{ product.price }}₪</p>
+                        <!-- <p class="stock">{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</p> -->
+                        <!-- <p class="rating">⭐ 4.5 (120 reviews)</p> -->
+                        <button class="add-to-cart">Add to Cart</button>
+                    </a>
+                </div>
+            </div>
+             {% endfor %}
+    </div>
+</div>
+{% endblock %}

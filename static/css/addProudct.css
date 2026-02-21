@@ -1,0 +1,124 @@
+body, .content, .add-product-section {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+
+.content {
+  order: 1;
+}
+
+.content__description {
+  order: -1;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.content__description h1 {
+  margin: 0 0 10px 0;
+  font-size: 2em;
+  color: #f1f1f1 !important;
+}
+
+.content__description p {
+  margin: 0;
+  color: #f1f1f1 !important;
+  font-size: 1.1em;
+}
+
+.add-product-section {
+  margin-top: 30px;
+  background: #181a1b !important;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.add-product-section h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+  color: #f1f1f1 !important;
+}
+
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group:nth-child(3),
+.form-group:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #f1f1f1 !important;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid #333 !important;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: inherit;
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.submit-btn {
+  grid-column: 1 / -1;
+  padding: 15px;
+  background: #667eea !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #764ba2 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 768px) {
+  .product-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group:nth-child(3),
+  .form-group:nth-child(4) {
+    grid-column: 1;
+  }
+
+  .add-product-section,
+  .product-form,
+  .form-group input,
+  .form-group textarea {
+    background: #181a1b !important;
+    color: #f1f1f1 !important;
+  }
+}

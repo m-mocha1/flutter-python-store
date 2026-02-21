@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Add New Product{% endblock %}
+{% block content %}
+  <div class="add-product-section">
+      <h2>Add New Product</h2>
+      
+      <form action="/addProduct" method="POST" enctype="multipart/form-data" class="product-form">
+        <div class="form-group">
+          <label for="product_name">Product Name</label>
+          <input type="text" id="product_name" name="product_name" placeholder="Enter product name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input type="number" id="price" name="price" placeholder="Enter price" step="0.01" required>
+        </div>
+        
+        
+        <div class="form-group">
+          <label for="image_file">Upload Image</label>
+          <input type="file" id="image_file" name="image_file" accept="image/*" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" placeholder="Enter product description" rows="4"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="stock">Stock Quantity</label>
+          <input type="number" id="stock" name="stock" placeholder="Enter stock quantity" min="0" required>
+        </div>
+        
+        <button type="submit" class="submit-btn">Add Product</button>
+         {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                      <h5> {{msg}} </h5>  
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+      </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Login Form</title>
+    <link rel="stylesheet" href="../../static/css/login.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h3 class="title">Sign Up</h3>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                      <h5 class="title"> {{msg}} </h5>  
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        <form action="/sign" method="post">
+            <div class="input-container">
+                <input type="text" placeholder="Username" required name="username"> 
+                <input type="password" placeholder="Create Password" required name="password">
+                <input type="text" placeholder="describe yourself" required name="description"> 
+            </div> 
+            <div class="botton">
+                <button class="submit" type="submit">SIGN UP</button> 
+            </div>  
+        </form>
+        <div class="signup">
+             Already Have An Account?<a href="/login"> log In</a>  
+        </div>
+    </div>
+</body>
+</html>
