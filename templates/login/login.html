@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Login Form</title>
+    <title>Login - Store</title>
     <link rel="stylesheet" href="../../static/css/login.css">
 </head>
 <body>
     <div class="form-container">
         <div class="form-header">
-            <h3 class="title">Log In</h3>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for msg in messages %}
-                      <h5 class="title"> {{msg}} </h5>  
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+             <h3 class="title">Login</h3>
         </div>
-        <form action="#" method="post">
+        <form action="/login" method="post">
             <div class="input-container">
-                <input type="text" placeholder="username" required name="username"> 
-                <input type="password" placeholder="password" required name="password"> 
-            </div> <!-- Add closing tag here -->
-            <div class="forgot-password">
-            </div>    
+                <input type="text" placeholder="Username" required name="username"> 
+                <input type="password" placeholder="Password" required name="password"> 
+            </div>
             <div class="botton">
-                <button class="submit" type="submit">LOG IN</button> 
+                <button class="submit" type="submit">LOGIN</button> 
             </div>  
         </form>
         <div class="signup">
-            Don't Have An Account?<a href="/sign"> sign up</a>  
+           
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                       <p class="error">{{ msg }}</p> 
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <br>
+            Don't have an account? <a href="/sign">Sign Up</a>  
         </div>
-    </div>
     </div>
 </body>
 </html>

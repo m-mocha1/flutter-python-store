@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="../static/css/productPage.css">
     <link rel="stylesheet" href="../static/css/myCart.css">
     <link rel="stylesheet" href="../static/css/addProudct.css">
+    <link rel="stylesheet" href="../static/css/search.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <title>{% block title %}{% endblock %}</title>
@@ -16,22 +18,29 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">Home</a>
+    <a class="navbar-brand" href="/">
+      <i class="bi bi-house-door"></i> Home
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="/profile">{{ username }}</a>
-        <a class="nav-link" href="/myCart">my cart</a>
-        <a class="nav-link" href="/addProduct">Add Product</a>
-        
-        
+        <a class="nav-link active" aria-current="page" href="/profile">
+          <i class="bi bi-person-circle"></i> {{ username }}
+        </a>
+        <a class="nav-link" href="/myCart">
+          <i class="bi bi-cart3"></i> My Cart
+        </a>
+        <a class="nav-link" href="/addProduct">
+          <i class="bi bi-plus-square"></i> Add Product
+        </a>
 
-      <form style="display: inline; margin: auto;" action="/logout" method="POST">
-          <button class="nav-link" type="submit" style="border: none; background: none; cursor: pointer;">LogOut</button>
+        <form style="display: inline; margin: auto;" action="/logout" method="POST">
+          <button class="nav-link" type="submit" style="border: none; background: none; cursor: pointer;">
+            <i class="bi bi-box-arrow-right"></i> LogOut
+          </button>
         </form>
-
       </div>
     </div>
   </div>
@@ -41,6 +50,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="../static/js/myCart.js"></script>
 <script src="../static/js/profile.js"></script>
-<script src="../static/js/proudctPage.js"></script>
+<script src="../static/js/productPage.js"></script>
 </body>
 </html>

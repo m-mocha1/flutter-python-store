@@ -2,11 +2,7 @@
 {% block title %}Home - Store{% endblock %}
 {% block content %}
 <div class="store-container">
-    <!-- Hero Section -->
-    <div class="hero">
-        <h1>Store project</h1>
-         <!-- <p>This project uses Flask, SQLAlchemy for database management, Product images are handled with file uploads, and user authentication is secured with hashed passwords.</p> -->
-    </div>
+    <h1>Search Results for "{{ query }}"</h1>
 
     <!-- Search Bar -->
      <div class="search-section">
@@ -27,7 +23,6 @@
             {% endwith %}
         
              {% if products %}
-        <h2>Featured Products</h2>
         <div class="products-grid">
             <!-- Product Card -->
               {% for product in products %}

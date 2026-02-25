@@ -187,3 +187,7 @@ body, .store-container {
     color: #f1f1f1 !important;
     border-color: #555555 !important;
 }
+.text-link {
+  text-decoration: none;
+  color: inherit;
+}

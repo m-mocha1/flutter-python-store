@@ -1,94 +1,144 @@
-body{
-    height:100vh;
+body {
+    height: 100vh;
     display: flex;
     margin: 0;
     padding: 0;
     font-family: sans-serif;
-    background: url(r.jpg); /* Add image or comment this out */
+    background: #181a1b;
     background-size: cover;
     justify-content: center;
     align-items: center;
- }
- .form-container {
-    max-width:320px;
+}
+
+.form-container {
+    max-width: 400px;
     width: 100%;
-    padding: 40px;
-    box-shadow: 0 0 10px black;
-    background: transparent;
-    border-radius: 30px;
+    padding: 50px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    background: #232526;
+    border-radius: 15px;
     text-align: center;
-    backdrop-filter: blur(20px);
- }
- .form-header {
+    border: 1px solid #333;
+}
+
+.form-header {
     text-align: center;
-    margin-bottom: 25px;
-    width: bold;
-    font-size: 1rem;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
     text-transform: uppercase;
-    color: white;
- }
- .input-container {
+    color: #f1f1f1;
+    font-weight: bold;
+}
+
+.input-container {
     position: relative;
     margin-bottom: 20px;
- }
- .input-container input {
-    padding:15px 20px ;
-    width: 275px;
-    border-radius: 30px;
-    border: 0px solid white;
-    box-shadow: 0 0 5px black;
-    margin-bottom: 20px;
-    background: transparent;
+}
+
+.input-container input {
+    padding: 15px 20px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #333;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    background: #181a1b;
     font-size: 1rem;
     outline: none;
-    color: black;
- }
- .input-container input:hover{
-    border: 2px solid rgba(0, 0, 0, 0.304);
- }
- input::placeholder {
-    color: white;
-    font-size: 0.8rem;
- }
- .forgot-password {
+    color: #f1f1f1;
+    transition: all 0.3s ease;
+}
+
+.input-container input:hover {
+    border: 1px solid #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+}
+
+.input-container input:focus {
+    border: 2px solid #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+input::placeholder {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.forgot-password {
     text-align: right;
     margin-bottom: 20px;
+}
 
- }
- .forgot-password a {
+.forgot-password a {
     text-decoration: none;
-    color: rgb(255, 255, 255);
+    color: #667eea;
     font-size: 14px;
- }
- .forgot-password a:hover {
+    transition: all 0.3s ease;
+}
+
+.forgot-password a:hover {
     text-decoration: underline;
- }
- .submit {
+    color: #764ba2;
+}
+
+.submit {
     width: 100%;
     padding: 15px;
-    border-radius: 20px;
-    border: 0px solid ;
-    /* box-shadow: 0 0 5px rgba(0, 0, 0, 0.804); */
+    border-radius: 8px;
+    border: none;
     margin-bottom: 20px;
     font-family: sans-serif;
     font-weight: 900;
-    background: white;
+    background: #667eea;
+    color: white;
     cursor: pointer;
- }
- .submit:hover {
-    box-shadow: 0 0 9px rgba(255, 255, 255, 0.662);
- }
- .signup {
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.submit:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.submit:active {
+    transform: translateY(0);
+}
+
+.signup {
     text-align: center;
     font-size: 14px;
-    cursor: pointer;
- }
- .signup a {
+    color: #f1f1f1;
+}
+
+.signup a {
     text-decoration: none;
-    color: rgb(255, 255, 255);
+    color: #667eea;
     cursor: pointer;
- }
- .title{
-   color : black;
- }
- 
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.signup a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.title {
+    color: #f1f1f1;
+    margin: 0;
+}
+
+/* Flash messages styling */
+.title h5 {
+    background: #ff4444;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+.error{
+   color: #FF746C   ;
+}

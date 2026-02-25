@@ -30,42 +30,62 @@
                 <p>{{ product.description }}</p>
             </div>
 
-            <div class="product-options">
-                <div class="quantity-option">
-                    <label>Quantity:</label>
-                    <div class="quantity-selector">
-                        <input type="number" id="quantity" value="1" min="1" max="{{ product.stock }}">
-                    </div>
-                </div>
+            <div class="product-actions-row">
+    <div class="product-options">
+        <div class="quantity-option">
+            <label>Quantity:</label>
+            {% if product.stock > 0 %}
+            <div class="quantity-selector">
+                <button type="button" class="qty-btn" id="qty-decrease">−</button>
+                <span class="qty-display" id="qty-display" data-max-stock="{{ product.stock }}">1</span>
+                <button type="button" class="qty-btn" id="qty-increase">+</button>
             </div>
+            <span class="stock-info">({{ product.stock }} available)</span>
+            {% endif %}
+        </div>
+    </div>
 
-            <div class="action-buttons">
-               <button class="add-to-cart-btn"
-        onclick="addToCart('{{ product._id }}', '{{ product.product_name }}')">
-    Add to Cart
-</button>
-            </div>
+    <div class="action-buttons">
+        {% if product.stock > 0 %}
+    <form action="{{ url_for('addToCart', product_id=product._id) }}" method="post" id="add-to-cart-form">
+        <input type="hidden" name="quantity" id="add-to-cart-qty" value="1">
+        <button type="submit" class="add-to-cart-btn">
+            Add to Cart
+        </button>
+    </form>
+    {% else %}
+        <h3>Out of stock</h3>
+    {% endif %}
+</div>
         </div>
     </div>
 
     <!-- Related Products -->
-    <div class="related-products">
-        <h2>Related Products</h2>
-        <div class="related-grid">
-            {% for related in related_products %}
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="{{ related.image_url }}" alt="{{ related.product_name }}">
-                </div>
-                <div class="product-info">
-                    <h3>{{ related.product_name }}</h3>
-                    <p class="price">{{ related.price }}</p>
-                    <a href="{{ url_for('productPage', product_id=related._id) }}" class="add-to-cart">View Details</a>
+    <div class="recommended-section">
+        <h2>You Might Also Like</h2>
+       <div class="products-grid">
+            <!-- Product Card -->
+              {% for product in products %}
+           <div class="product-card">
+                <a  href="{{ url_for('productPage', product_id=product._id) }}" class="text-link">
+                    <div class="product-image">
+                        <img src="{{  product.image_url }}" alt="{{ product.product_name }}">
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.product_name }}</h3>
+                        <p class="price">{{ product.price }}₪</p>
+                        {% if product.stock > 0  %}
+                         <form action="{{ url_for('addToCart', product_id=product._id) }}" method="post">
+                            <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                         </form>
+                         {% else %}
+                            <h3>Out of stock</h3>
+                        {% endif %}
+                        </a>
                 </div>
             </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     </div>
 </div>
-<script src="../static/css/js/proudctPage.js"></script>
+<script src="{{ url_for('static', filename='js/productPage.js') }}"></script>
 {% endblock %}
