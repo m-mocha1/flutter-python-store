@@ -7,9 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 import os
 from werkzeug.utils import secure_filename
-
-
-
+from services.cart_services.add_to_cart import add_to_cart
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = KEY
@@ -223,95 +221,35 @@ def myCart():
     
 
 @app.route('/addToCart/<int:product_id>',methods=["POST"])
-def addToCart(product_id):
+def add_to_cart_route(product_id): 
     if "username" not in session:
         return redirect(url_for("login"))
     
-    user = User.query.filter_by(username=session["username"]).first()
-    product = Product.query.filter_by(_id = product_id).first()
-    
-    if not product:
-        flash("Product not found", "error")
-        return redirect(url_for("home"))
-    
-    if not product.is_in_stock():
-        flash("this product out of stock")    
-        return redirect(url_for('productPage',product_id=product_id))
-    
-    # get requested quantity (from product page form or default 1)
+    qty_str = request.form.get("quantity", "1")
+
     try:
-        requested_qty = int(request.form.get("quantity", 1))
-    except ValueError:
+        requested_qty = int(qty_str)
+    except:
         requested_qty = 1
 
-    if requested_qty <= 0:
-        flash("Quantity must be at least 1", "error")
-        return redirect(url_for('productPage', product_id=product_id))
-
-    existing = Cart.query.filter_by(user_id = user._id,product_id = product_id).first()
-
-    try:
-        if existing:
-            new_total = existing.quantity + requested_qty
-            if not product.can_add(new_total):
-                flash(f"only {product.stock} left in stock")
-                return redirect(url_for("myCart"))
-            existing.quantity = new_total
-        else:
-            if not product.can_add(requested_qty):
-                flash(f"only {product.stock} left in stock")
-                return redirect(url_for("productPage", product_id=product_id))
-            newCartItem = Cart(user_id=user._id,product_id=product_id,quantity=requested_qty)
-            db.session.add(newCartItem)
-        
-        db.session.commit()
-        flash("item added to cart", "success")   
-        return redirect(url_for('myCart'))
-    except ValueError as e:
-        flash(str(e),"error")
+    if requested_qty < 1: requested_qty = 1
+    user = User.query.filter_by(username=session["username"]).first()
+     
+    ok,messege = add_to_cart(db,User, Product, Cart, user._id,product_id, requested_qty) 
+    flash(messege,"ok" if ok else "error")
+    
+    if ok :
         return redirect(url_for("myCart"))
-
+    else:
+        return redirect(url_for("home"))
 
 
 @app.route('/removeFromCart/<int:cart_id>', methods=["POST"])
-def removeFromCart(cart_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
-    
-    user = User.query.filter_by(username=session["username"]).first()
-    cart_item = Cart.query.filter_by(_id=cart_id, user_id=user._id).first()
-    
-    if cart_item:
-        db.session.delete(cart_item)
-        db.session.commit()
-        flash("Item removed from cart!", "success")
-    else:
-        flash("Item not found!", "error")
-    
-    return redirect(url_for('myCart'))
+
 
 
 @app.route('/updateCartQuantity/<int:cart_id>', methods=["POST"])
-def updateCartQuantity(cart_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
-    
-    user = User.query.filter_by(username=session["username"]).first()
-    cart_item = Cart.query.filter_by(_id=cart_id, user_id=user._id).first()
-    quantity = request.form.get('quantity')
-    
 
-    try:
-        if cart_item and quantity:
-            cart_item.quantity = int(quantity)
-            db.session.commit()
-            flash("Quantity updated!", "success")
-        else:
-            flash("Error updating quantity!", "error")
-    except ValueError as e:
-        flash(str(e),"error")            
-        
-    return redirect(url_for('myCart'))
 
 
 
