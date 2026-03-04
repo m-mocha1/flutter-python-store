@@ -1,4 +1,13 @@
 from config import KEY
+from services.cart_services.add_to_cart import add_to_cart
+from extensions import db
+from services.auth_services.login_service import auth_user
+from services.auth_services.sign_up_service import create_user
+from services.cart_services.update_cart_quantity import update_Cart_Quantity
+from services.cart_services.remove_from_cart import remove_From_Cart
+from services.product_services.add_product import add_Product
+from services.product_services.remove_product import remove_Product
+
 from flask import Flask, render_template, redirect, request, url_for, session, flash
 from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 import os
 from werkzeug.utils import secure_filename
-from services.cart_services.add_to_cart import add_to_cart
+
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = KEY
@@ -15,83 +24,19 @@ app.secret_key = KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'uploads')
+UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-db = SQLAlchemy(app)
+db.init_app(app)
+
+from models.user_model import User
+from models.product_model import Product
+from models.cart_model import Cart
 
 
 # These class represents a table in the database
-class User(db.Model):
-    _id  = db.Column("id",db.Integer, primary_key=True)
-    username = db.Column(db.String(30),nullable=False, unique = True)
-    description = db.Column(db.String(30),nullable=False, unique = False)
-    password= db.Column(db.String(200), nullable=False)
-
-    def __init__(self, username, password, description):
-        self.username = username
-        self.password = password
-        self.description = description
-
-class Product(db.Model):
-    _id  = db.Column("id",db.Integer, primary_key=True)
-    product_name = db.Column(db.String(50),nullable=False)
-    price = db.Column(db.Float, nullable = False)
-    image_url = db.Column(db.String(500),nullable=False)
-    description = db.Column(db.String(500), nullable=False)
-    stock = db.Column(db.Integer, default=1)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    def __init__(self, product_name, price, image_url, description, stock,user_id):
-        self.product_name = product_name
-        self.price = price
-        self.image_url = image_url
-        self.description = description
-        self.stock = stock
-        self.user_id = user_id
-
-    @validates('stock')
-    def validate_stock(self,key,value):
-        if value <= 0:
-            raise ValueError("Stock cannot be neg")
-        return value
-
-    def is_in_stock(self):
-        return self.stock > 0 
-
-    def can_add(self,quantity):
-        return self.stock >= quantity
-
-    def reduce_stock(self, amount):
-        if not self.can_add(amount):
-            raise ValueError(f"Only {self.stock} left in stock")
-        self.stock -= amount
-            
-class Cart(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    quantity = db.Column(db.Integer, default=1)
-    product = db.relationship("Product")
-    user = db.relationship("User")
-
-    def __init__(self,user_id,product_id,quantity=1):
-      self.user_id = user_id
-      self.product_id = product_id
-      self.quantity = quantity
-
-    @validates('quantity')
-    def validateQuantity(self,key,value):
-      if value <= 0:
-          raise ValueError("quantity must be at least 1")
-      product = Product.query.filter_by(_id=self.product_id).first()
-      if product and value > product.stock:
-          raise ValueError(f"only{product.stock} left")
-      return value
-    
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -121,19 +66,16 @@ def login():
        username = request.form["username"].strip().lower()
        password = request.form["password"]
 
-       user = User.query.filter_by(username=username).first()
+       ok,message = auth_user(User,username,password)
 
-       if user and check_password_hash(user.password, password):
-            session["username"] = username
-            return redirect(url_for("home"))
-       else:
-            flash("username or password is wrong")
-            return render_template('login/login.html')
+       if ok :
+          session["username"] = username 
+          return render_template("login/login.html") # if error
+       
+       flash(message,"error")
 
-    else:
-        return render_template('login/login.html')
-
-
+    return render_template("login/login.html") # if get
+       
 
 @app.route("/sign",methods=["POST","GET"])
 def sign():
@@ -144,21 +86,16 @@ def sign():
         username = request.form["username"].strip().lower()
         password = request.form["password"]
         description = request.form["description"]
-        try:
-            hashed_pass = generate_password_hash(password=password, method='pbkdf2:sha256')
-            new_user = User(username=username,password=hashed_pass,description=description)
-            db.session.add(new_user)
-            db.session.commit()
-            session["username"] = username
-            # session.permanent = True
-            return redirect(url_for("home"))
-        except IntegrityError:
-            db.session.rollback()
-            flash("username already exists!")
-            return render_template('login/sign.html')
+        ok,message = create_user(User,username,password,description,db)
 
-    else:
+        if ok :
+            session["username"] = username
+            return redirect(url_for('home'))
+        
+        flash(message,"error")
         return render_template('login/sign.html')
+    
+    return render_template('login/sign.html')
 
 
 
@@ -168,14 +105,26 @@ def log_out():
     return redirect(url_for("login"))
      
 
+    #  ------------------------------------------
+
+
+
 @app.route("/profile",methods=["GET","POST"])
 def profile():
-    if "username" in session:
-        user = User.query.filter_by(username=session["username"]).first()
-        return render_template('profile.html', username=user.username, description=user.description)
-    else: 
+   if "username" not in session:
         return redirect(url_for("login"))
-            
+   
+   user = get_username(User, username=session["username"])
+   return render_template(
+       'profile.html',
+        username=user.username,
+        description=user.description)
+
+
+def get_username(User, username):
+    return User.query.filter_by(username=username).first()
+    
+    #  ------------------------------------------
 
 
 
@@ -219,6 +168,7 @@ def myCart():
         return redirect(url_for("login"))
     
     
+    #  ------------------------------------------
 
 @app.route('/addToCart/<int:product_id>',methods=["POST"])
 def add_to_cart_route(product_id): 
@@ -233,23 +183,46 @@ def add_to_cart_route(product_id):
         requested_qty = 1
 
     if requested_qty < 1: requested_qty = 1
+
     user = User.query.filter_by(username=session["username"]).first()
      
-    ok,messege = add_to_cart(db,User, Product, Cart, user._id,product_id, requested_qty) 
-    flash(messege,"ok" if ok else "error")
+    ok,message = add_to_cart(db,User, Product, Cart, user._id,product_id, requested_qty) 
+    flash(message,"ok" if ok else "error")
     
     if ok :
         return redirect(url_for("myCart"))
     else:
         return redirect(url_for("home"))
 
+    #  ------------------------------------------
 
 @app.route('/removeFromCart/<int:cart_id>', methods=["POST"])
+def removeFromCart (cart_id):
+    if "username" not in session:
+        return redirect(url_for("login"))
 
+    username=session["username"]
+    message = remove_From_Cart(User, Cart, username,cart_id,db)
+    flash(message)
+
+    return redirect(url_for('myCart'))
+
+    #  ------------------------------------------
 
 
 @app.route('/updateCartQuantity/<int:cart_id>', methods=["POST"])
+def updateCartQuantity(cart_id):
+    if "username" not in session:
+        return redirect(url_for("login"))
+    
+    username=session["username"]
+    qty = request.form.get('quantity')
 
+    message = update_Cart_Quantity(User, Cart, username, qty, cart_id, db)
+    flash(message)    
+    return redirect(url_for('myCart'))
+
+    #  ------------------------------------------
 
 
 
@@ -259,6 +232,7 @@ def addProduct():
     if "username" not in session:
         return redirect(url_for("login"))
 
+    username = session["username"]
     if request.method == "POST":
        product_name = request.form["product_name"]
        price = float(request.form["price"])
@@ -274,25 +248,10 @@ def addProduct():
             flash("Image is required", "error")
             return render_template('addProduct.html', username=session["username"])
 
-       user = User.query.filter_by(username=session["username"]).first()
-
-       try:
-           new_Product = Product(
-               product_name=product_name,
-               price=price,
-               image_url=image_url,
-               description=description,
-               stock=stock,          
-               user_id=user._id
-           )
-           db.session.add(new_Product)
-           db.session.commit()
-           flash("your last product has been added successfully!", "success")
-       except ValueError as e:
-           db.session.rollback()
-           flash(str(e), "error")
-
-    return render_template('addProduct.html', username=session["username"])
+       message = add_Product(db,Product,User,product_name,price,description,stock,username,image_url)
+       flash(message)
+       
+    return redirect(url_for('home'))
     
 
 
@@ -300,18 +259,10 @@ def addProduct():
 def removeProduct(product_id):
     if "username" not in session:
         return redirect(url_for("login"))
-    user = User.query.filter_by(username=session["username"]).first()
-    product = Product.query.filter_by(_id=product_id).first()
-    if product and product.user_id == user._id:
-        delete_image_file(product.image_url)
-        
-        Cart.query.filter_by(product_id=product._id).delete()
-
-        db.session.delete(product)
-        db.session.commit()
-        flash("Product removed successfully!", "success")
-    else:
-        flash("You can only remove products you added.", "error")
+    
+    username = session["username"]
+    ok,message = remove_Product(User,Product,Cart,username,product_id,db,app.config["UPLOAD_FOLDER"])
+    flash(message, "success" if ok else "error")
     return redirect(url_for("home"))
 
 
@@ -350,22 +301,7 @@ def page_not_found(error):
 
 
 
-def delete_image_file(image_url: str):
-    """Delete image file from disk given its URL like /static/uploads/filename.jpg"""
-    if not image_url:
-        return
-    try:
-        # we only handle files under /static/uploads/
-        prefix = "/static/uploads/"
-        if not image_url.startswith(prefix):
-            return
-        filename = image_url[len(prefix):]
-        file_path = os.path.join(app.root_path, "static", "uploads", filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-    except Exception as e:
-        # optional: log error instead of crashing
-        print(f"Error deleting file {image_url}: {e}")
+
 
 
 if __name__ == "__main__":

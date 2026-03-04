@@ -1,20 +1,16 @@
-def updateCartQuantity(cart_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
+def update_Cart_Quantity(User,Cart,username, qty, cart_id, db):
     
-    user = User.query.filter_by(username=session["username"]).first()
+    
+    user = User.query.filter_by(username=username).first()
     cart_item = Cart.query.filter_by(_id=cart_id, user_id=user._id).first()
-    quantity = request.form.get('quantity')
-    
 
     try:
-        if cart_item and quantity:
-            cart_item.quantity = int(quantity)
+        if cart_item and qty:
+            cart_item.quantity = int(qty)
             db.session.commit()
-            flash("Quantity updated!", "success")
+            return("Quantity updated!")
         else:
-            flash("Error updating quantity!", "error")
+            return("Error updating quantity!")
     except ValueError as e:
-        flash(str(e),"error")            
+        return(str(e))            
         
-    return redirect(url_for('myCart'))
