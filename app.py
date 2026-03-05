@@ -5,17 +5,17 @@ from services.auth_services.login_service import auth_user
 from services.auth_services.sign_up_service import create_user
 from services.cart_services.update_cart_quantity import update_Cart_Quantity
 from services.cart_services.remove_from_cart import remove_From_Cart
-from services.product_services.add_product import add_Product
+from services.product_services.add_product import add_Product,save_product_image
 from services.product_services.remove_product import remove_Product
+from utils.auth import require_login,require_logout,login_user,logout_user,get_user_by_username,load_logged_in_user,get_logged_user
+from utils.cart import get_user_cart_products_id,get_products_not_in_cart,get_user_cart,sub_total
+from utils.product import get_all_products,get_product_info,get_other_products
 
 from flask import Flask, render_template, redirect, request, url_for, session, flash
-from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import validates
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.exc import IntegrityError
 import os
 from werkzeug.utils import secure_filename
+from flask import Flask, g, session
 
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
@@ -25,7 +25,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -36,52 +35,54 @@ from models.product_model import Product
 from models.cart_model import Cart
 
 
+# -------------------------------------------------------------
 # These class represents a table in the database
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# -------------------------------------------------------------
 
+app.before_request(load_logged_in_user)
 
+# -------------------------------------------------------------
 @app.route("/",methods=["GET", "POST"])
+@require_login 
 def home():
-    if "username" in session:
-        user = User.query.filter_by(username=session["username"]).first()
-        cartItems = Cart.query.filter_by(user_id = user._id).all()
-        cart_product_ids = [item.product_id for item in cartItems]
-        products = Product.query.order_by(Product._id.desc()).all()  # no limit
-        return render_template("index.html", products=products,username=user.username)
-    else:
-       return redirect(url_for("login")) 
+   cart_product_ids = get_user_cart_product_ids(Cart)
+   products = get_all_products(Product)
+
+   return render_template(
+        "index.html", 
+        products=products,
+        username=g.user.username,
+        cart_product_ids=cart_product_ids  # for product page
+    )
+# -------------------------------------------------------------
 
 
-
+# -------------------------------------------------------------
 @app.route("/login",methods=["POST","GET"])
+@require_logout
 def login():
-    if "username" in session:
-        return redirect(url_for("home"))
-
     if request.method == "POST":
-    #    session.permanent = True
        username = request.form["username"].strip().lower()
        password = request.form["password"]
 
        ok,message = auth_user(User,username,password)
 
        if ok :
-          session["username"] = username 
+          login_user(username) 
           return render_template("login/login.html") # if error
        
        flash(message,"error")
 
-    return render_template("login/login.html") # if get
+    return render_template("login/login.html") # if GET
+# -------------------------------------------------------------
        
 
+# -------------------------------------------------------------
+
 @app.route("/sign",methods=["POST","GET"])
+@require_logout
 def sign():
-    if "username" in session:
-        return redirect(url_for("home"))
-    
     if request.method == "POST":
         username = request.form["username"].strip().lower()
         password = request.form["password"]
@@ -89,61 +90,55 @@ def sign():
         ok,message = create_user(User,username,password,description,db)
 
         if ok :
-            session["username"] = username
+            login_user(username)
             return redirect(url_for('home'))
         
         flash(message,"error")
         return render_template('login/sign.html')
     
     return render_template('login/sign.html')
+# -------------------------------------------------------------
 
 
-
+# -------------------------------------------------------------
 @app.route("/logout",methods=["POST"])
+@require_login 
 def log_out():
-    session.pop("username",None)
-    return redirect(url_for("login"))
-     
-
-    #  ------------------------------------------
+    logout_user()
+    return redirect(url_for("login"))    
+# -------------------------------------------------------------
 
 
 
+# -------------------------------------------------------------
 @app.route("/profile",methods=["GET","POST"])
+@require_login 
 def profile():
-   if "username" not in session:
-        return redirect(url_for("login"))
-   
-   user = get_username(User, username=session["username"])
-   return render_template(
-       'profile.html',
-        username=user.username,
-        description=user.description)
 
+  user = get_logged_user()
+  return render_template(
+  'profile.html',
+   username=user.username,
+   description=user.description)
+# -------------------------------------------------------------
 
-def get_username(User, username):
-    return User.query.filter_by(username=username).first()
-    
-    #  ------------------------------------------
 
 
 
 
 @app.route("/productPage/<product_id>",methods=["GET","POST"])
+@require_login 
 def productPage(product_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
-    
-    product = Product.query.filter_by(_id=product_id).first()
-    if not product:
+    product = get_product_info(Product,product_id)
+    if product is None:
         flash("Product no longer available")
         return redirect(url_for("home"))
    
-    user = User.query.filter_by(username=session["username"]).first()
-    related_products = Product.query.filter(Product._id != product_id).order_by(db.func.random()).limit(10).all()
+    user = get_logged_user()
+    related_products = get_other_products(db, Product, product_id)
 
     return render_template('productPage.html',
-                            username=session["username"],
+                            username=user.username,
                             product=product,
                             products=related_products,
                             user_id=user._id)
@@ -152,25 +147,26 @@ def productPage(product_id):
 
 
 @app.route("/myCart",methods=["GET","POST"])
+@require_login 
 def myCart():
-    if "username" in session:
-        user = User.query.filter_by(username=session["username"]).first()
-        cartItems = Cart.query.filter_by(user_id = user._id).all()
-        cart_product_ids = [item.product_id for item in cartItems]
-        products_not_in_cart = Product.query.filter(~Product._id.in_(cart_product_ids)).order_by(db.func.random()).limit(10).all()
-        subtotal = 0
-        for item in cartItems:
-            if item.product is None:
-                continue  
-            subtotal += item.product.price * item.quantity
-        return render_template('myCart.html', username=session["username"],products=products_not_in_cart,cartItems=cartItems,subtotal=subtotal)
-    else:
-        return redirect(url_for("login"))
-    
-    
+        
+        user =get_logged_user()
+        cartItems = get_user_cart(Cart)
+        cart_product_ids = get_user_cart_products_id(Cart)
+        products_not_in_cart = get_products_not_in_cart(Product,cart_product_ids,db)
+        subtotal = sub_total(cartItems)
+        
+
+        return render_template('myCart.html',
+                                username=user.username,
+                                products=products_not_in_cart,
+                                cartItems=cartItems,
+                                subtotal=subtotal)
+
     #  ------------------------------------------
 
 @app.route('/addToCart/<int:product_id>',methods=["POST"])
+@require_login 
 def add_to_cart_route(product_id): 
     if "username" not in session:
         return redirect(url_for("login"))
@@ -184,7 +180,7 @@ def add_to_cart_route(product_id):
 
     if requested_qty < 1: requested_qty = 1
 
-    user = User.query.filter_by(username=session["username"]).first()
+    user = get_logged_user()
      
     ok,message = add_to_cart(db,User, Product, Cart, user._id,product_id, requested_qty) 
     flash(message,"ok" if ok else "error")
@@ -197,12 +193,11 @@ def add_to_cart_route(product_id):
     #  ------------------------------------------
 
 @app.route('/removeFromCart/<int:cart_id>', methods=["POST"])
+@require_login 
 def removeFromCart (cart_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
-
-    username=session["username"]
-    message = remove_From_Cart(User, Cart, username,cart_id,db)
+    user= get_logged_user()
+    
+    message = remove_From_Cart(User, Cart, user.username,cart_id,db)
     flash(message)
 
     return redirect(url_for('myCart'))
@@ -211,14 +206,12 @@ def removeFromCart (cart_id):
 
 
 @app.route('/updateCartQuantity/<int:cart_id>', methods=["POST"])
+@require_login 
 def updateCartQuantity(cart_id):
-    if "username" not in session:
-        return redirect(url_for("login"))
-    
-    username=session["username"]
+    user = get_logged_user()
     qty = request.form.get('quantity')
 
-    message = update_Cart_Quantity(User, Cart, username, qty, cart_id, db)
+    message = update_Cart_Quantity(User, Cart, user.username, qty, cart_id, db)
     flash(message)    
     return redirect(url_for('myCart'))
 
@@ -228,34 +221,39 @@ def updateCartQuantity(cart_id):
 
 
 @app.route("/addProduct",methods=["POST","GET"])
+@require_login 
 def addProduct():
-    if "username" not in session:
-        return redirect(url_for("login"))
-
-    username = session["username"]
     if request.method == "POST":
+       user = get_logged_user()
+
        product_name = request.form["product_name"]
        price = float(request.form["price"])
        description = request.form["description"]
        stock = int(request.form["stock"])
 
        file = request.files.get("image_file")
-       if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            image_url = f"/static/uploads/{filename}"
-       else:
-            flash("Image is required", "error")
-            return render_template('addProduct.html', username=session["username"])
-
-       message = add_Product(db,Product,User,product_name,price,description,stock,username,image_url)
-       flash(message)
-       
-    return redirect(url_for('home'))
+       upload_folder = app.config['UPLOAD_FOLDER']
     
+       ok,result = save_product_image(file, upload_folder)
+       if not ok :
+           return render_template('addProduct.html', username=user.username) #error
+       image_url = result
+
+       ok,message = add_Product(db,Product,User,product_name,price,description,stock,user,image_url)
+
+       if ok :   
+        flash(message,"success")
+        return redirect(url_for('home'))
+       else:
+           flash(message, "error")
+           return render_template('addProduct.html', username=user.username)
+    
+    user = get_logged_user()
+    return render_template('addProduct.html', username=user.username)
 
 
 @app.route("/removeProduct/<int:product_id>", methods=["POST"])
+@require_login 
 def removeProduct(product_id):
     if "username" not in session:
         return redirect(url_for("login"))
@@ -269,10 +267,8 @@ def removeProduct(product_id):
 
 
 @app.route("/search", methods=["GET"])
+@require_login 
 def search():
-    if "username" not in session:
-        return redirect(url_for("login"))
-    
     query = request.args.get('q', '').strip()
     
     if query:
