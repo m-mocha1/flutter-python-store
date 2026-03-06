@@ -1,4 +1,3 @@
-# utils/auth.py
 from functools import wraps
 from flask import g, redirect, url_for, session
 
@@ -22,7 +21,7 @@ def require_login(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.user is None:
-            return redirect(url_for("login"))
+            return redirect(url_for("login.login"))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -31,7 +30,7 @@ def require_logout(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.user is not None:
-            return redirect(url_for("home"))
+            return redirect(url_for("home.home"))
         return f(*args, **kwargs)
     return decorated_function
 

@@ -10,7 +10,7 @@
 
     <!-- Search Bar -->
      <div class="search-section">
-        <form action="{{ url_for('search') }}" method="GET" class="search-form">
+        <form action="{{ url_for('search.search') }}" method="GET" class="search-form">
             <input type="text" name="q" placeholder="Search products..." class="search-input" value="{{ query }}" required>
             <button type="submit" class="search-btn">Search</button>
         </form>
@@ -32,29 +32,28 @@
             <!-- Product Card -->
               {% for product in products %}
             <div class="product-card">
-                <a  href="{{ url_for('productPage', product_id=product._id) }}" class="text-link">
+                <a href="{{ url_for('product.productPage', product_id=product._id) }}" class="text-link">
                     <div class="product-image">
-                        <img src="{{  product.image_url }}" alt="{{ product.product_name }}">
+                        <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
                     </div>
                     <div class="product-info">
                         <h3>{{ product.product_name }}</h3>
                         <p class="price">{{ product.price }}₪</p>
-                        {% if product.stock > 0  %}
-                         <form action="{{ url_for('addToCart', product_id=product._id) }}" method="post">
+                        {% if product.stock > 0 %}
+                         <form action="{{ url_for('cart.addToCart', product_id=product._id) }}" method="post">
                             <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-                            
                          </form>
                          {% else %}
                             <h3>Out of stock</h3>
                         {% endif %}
-                        </a>
-                </div>
+                    </div>
+                </a>
             </div>
              {% endfor %}
               {% else %}
         <div style="text-align: center; padding: 40px;">
             <h2>No products found</h2>
-            <p><a href="/addProduct">Add a product</a></p>
+            <p><a href="{{ url_for('add_product.addProduct') }}">Add a product</a></p>
         </div>
         {% endif %}
         

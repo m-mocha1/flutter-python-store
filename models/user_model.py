@@ -10,3 +10,7 @@ class User(db.Model):
         self.username = username
         self.password = password
         self.description = description
+
+    def __repr__(self):
+        """String representation for debugging"""
+        return f'<User {self.username}>'

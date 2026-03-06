@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}profile{% endblock %}
+{% block title %}Profile{% endblock %}
 {% block content %}
 <div class="profile-page">
   <div class="content">
@@ -15,6 +15,7 @@
     <div class="content__description">
       <h1>{{ username }}</h1>
       <p>full-stack software</p>
+      <a href="{{ url_for('home.home') }}" class="btn-home">Back to Home</a>
     </div>
   
     
@@ -36,5 +37,6 @@
     </svg>
   </div>
 </div>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}
 

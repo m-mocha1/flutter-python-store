@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Store</title>
-    <link rel="stylesheet" href="../../static/css/login.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
     <div class="form-container">
         <div class="form-header">
              <h3 class="title">Login</h3>
         </div>
-        <form action="/login" method="post">
+        <form action="{{ url_for('login.login') }}" method="post">
             <div class="input-container">
                 <input type="text" placeholder="Username" required name="username"> 
                 <input type="password" placeholder="Password" required name="password"> 
@@ -30,7 +30,7 @@
                 {% endif %}
             {% endwith %}
             <br>
-            Don't have an account? <a href="/sign">Sign Up</a>  
+            Don't have an account? <a href="{{ url_for('sign.sign') }}">Sign Up</a>  
         </div>
     </div>
 </body>

@@ -4,7 +4,7 @@
   <div class="add-product-section">
       <h2>Add New Product</h2>
       
-      <form action="/addProduct" method="POST" enctype="multipart/form-data" class="product-form">
+      <form action="{{ url_for('add_product.addProduct') }}" method="POST" enctype="multipart/form-data" class="product-form">
         <div class="form-group">
           <label for="product_name">Product Name</label>
           <input type="text" id="product_name" name="product_name" placeholder="Enter product name" required>

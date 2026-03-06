@@ -1,11 +1,11 @@
-from utils.get_loged_user import logged_user
 from werkzeug.utils import secure_filename
-
+import os
 from flask import g
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
 
 
-def add_Product(db,Product, product_name, price, description, stock, user, image_url):
+def add_Product(db,Product, product_name, price, description, stock, user, image_url,file):
     if g.user is None:
         return "user not found"
 
@@ -27,7 +27,7 @@ def add_Product(db,Product, product_name, price, description, stock, user, image
 
 
 
-def allowed_file(filename):
+def allowed_file(filename, upload_folder):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -45,7 +45,6 @@ def save_product_image(file,upload_folder):
         import time
         filename = f"{int(time.time())}_{filename}"
         
-        upload_folder = current_app.config['UPLOAD_FOLDER']
         os.makedirs(upload_folder, exist_ok=True)
         
         file.save(os.path.join(upload_folder, filename))

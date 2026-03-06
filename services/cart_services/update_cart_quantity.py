@@ -1,8 +1,8 @@
-from utils.get_loged_user import logged_user
+from utils.auth import get_logged_user
 from flask import g
 
 def update_Cart_Quantity(User,Cart,username, qty, cart_id, db):
-    user = logged_user()
+    user = get_logged_user()
 
     if g.user is None:
         return "user not found"

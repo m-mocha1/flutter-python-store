@@ -1,10 +1,10 @@
 import os
-from utils.get_loged_user import logged_user
+from utils.auth import get_logged_user
 from flask import g
 
 def remove_Product(User, Product, Cart, username, product_id, db, upload_folder):
     
-    user = logged_user()
+    user = get_loged_user()
 
     if g.user is None:
         return "user not found"

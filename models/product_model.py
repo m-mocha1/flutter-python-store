@@ -1,5 +1,5 @@
 from extensions import db
-
+from sqlalchemy.orm import validates
 
 class Product(db.Model):
     _id  = db.Column("id",db.Integer, primary_key=True)

@@ -11,6 +11,9 @@ def get_user_cart_products_id(Cart):
     return [item.product_id for item in cart_items]
 
 def get_products_not_in_cart(Product,cart_product_ids,db):
+    if not cart_product_ids:
+         return Product.query.order_by(db.func.random()).limit(10).all()
+
     return Product.query.filter(~Product._id.in_(cart_product_ids)).order_by(db.func.random()).limit(10).all()
 
 def sub_total(cart_items):

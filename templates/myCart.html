@@ -19,57 +19,54 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Cart Item 1 -->
-                     {% for item in cartItems %}
+                    {% for item in cartItems %}
                     <tr class="cart-item">
                         <td class="product-info">
-                              <a  href="{{ url_for('productPage', product_id=item.product._id) }}" class="text-link">
-                                  <img src="{{ item.product.image_url }}" alt="Product">
-                                  <div>
-                                      <h4>{{ item.product.product_name }}</h4>
-                                      <p class="product-id">SKU: {{ item.product._id }}</p>
-                                    </a>
-                                    </div>
+                            <a href="{{ url_for('product.productPage', product_id=item.product._id) }}" class="text-link">
+                                <img src="{{ item.product.image_url }}" alt="Product">
+                                <div>
+                                    <h4>{{ item.product.product_name }}</h4>
+                                    <p class="product-id">SKU: {{ item.product._id }}</p>
+                                </div>
+                            </a>
                         </td>
                         <td class="price">{{ item.product.price }}₪</td>
 
                         <td class="quantity">
-
                             <div class="quantity-selector">
-                                <form action="{{ url_for('updateCartQuantity', cart_id=item._id) }}" method="POST" style="display:inline;">
+                                <form action="{{ url_for('cart.updateCartQuantity', cart_id=item._id) }}" method="POST" style="display:inline;">
                                     <input type="hidden" name="quantity" value="{{ item.quantity - 1 }}">
                                     <button type="submit" class="qty-btn" {% if item.quantity <= 1 %}disabled{% endif %}>−</button>
                                 </form>
                                 <span class="qty-display">{{ item.quantity }}</span>
-                                <form action="{{ url_for('updateCartQuantity', cart_id=item._id) }}" method="POST" style="display:inline;">
+                                <form action="{{ url_for('cart.updateCartQuantity', cart_id=item._id) }}" method="POST" style="display:inline;">
                                     <input type="hidden" name="quantity" value="{{ item.quantity + 1 }}">
                                     <button type="submit" class="qty-btn">+</button>
                                 </form>
                             </div>
-                       
                         </td>
                         <td class="total">{{ item.product.price * item.quantity }}₪</td>
                         <td class="action">
-                            <form action="{{ url_for('removeFromCart', cart_id=item._id) }}" method="POST" style="display:inline;">
+                            <form action="{{ url_for('cart.removeFromCart', cart_id=item._id) }}" method="POST" style="display:inline;">
                                 <button type="submit" class="remove-btn">Remove</button>
                             </form>
                         </td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
             {% else %}
-            <!-- Empty Cart Message (hidden by default) -->
+            <!-- Empty Cart Message -->
             <div class="empty-cart" style="text-align: center; padding: 40px;">
                 <h2>Your cart is empty</h2>
                 <p>Add some products to get started!</p>
-                <a href="/" class="continue-shopping">Continue Shopping</a>
+                <a href="{{ url_for('home.home') }}" class="continue-shopping">Continue Shopping</a>
             </div>
             {% endif %}
         </div>
 
         <!-- Cart Summary -->
-         {% if cartItems %}
+        {% if cartItems %}
         <div class="cart-summary">
             <h2>Order Summary</h2>
 
@@ -90,7 +87,7 @@
             </div>
 
             <button class="checkout-btn">Proceed to Checkout</button>
-            <a href="/" class="continue-shopping-link">Continue Shopping</a>
+            <a href="{{ url_for('home.home') }}" class="continue-shopping-link">Continue Shopping</a>
         </div>
         {% endif %}
     </div>
@@ -98,28 +95,28 @@
     <!-- Recommended Products -->
     <div class="recommended-section">
         <h2>You Might Also Like</h2>
-       <div class="products-grid">
-            <!-- Product Card -->
-              {% for product in products %}
-           <div class="product-card">
-                <a  href="{{ url_for('productPage', product_id=product._id) }}" class="text-link">
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <a href="{{ url_for('product.productPage', product_id=product._id) }}" class="text-link">
                     <div class="product-image">
-                        <img src="{{  product.image_url }}" alt="{{ product.product_name }}">
+                        <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
                     </div>
                     <div class="product-info">
                         <h3>{{ product.product_name }}</h3>
                         <p class="price">{{ product.price }}₪</p>
-                        {% if product.stock > 0  %}
-                         <form action="{{ url_for('addToCart', product_id=product._id) }}" method="post">
+                        {% if product.stock > 0 %}
+                        <form action="{{ url_for('cart.addToCart', product_id=product._id) }}" method="post">
                             <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-                         </form>
-                         {% else %}
-                            <h3>Out of stock</h3>
+                        </form>
+                        {% else %}
+                        <h3>Out of stock</h3>
                         {% endif %}
-                        </a>
-                </div>
+                    </div>
+                </a>
             </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

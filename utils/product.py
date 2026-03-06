@@ -1,6 +1,6 @@
 from flask import g
 def get_all_products(Product):
-    return Product.query.order_by(Proudct._id.decs()).all
+    return Product.query.order_by(Product._id.desc()).all()
 # this to return all products newset first
 
 def get_product_info(Product, product_id):
