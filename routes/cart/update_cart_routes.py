@@ -5,10 +5,10 @@ from models import User, Cart
 from extensions import db
 
 
-update_cart_quantity = Blueprint('update_cart',__name__)
+update_cart_bp = Blueprint('update_cart',__name__)
 
 
-@update_cart_quantity.route('/updateCartQuantity/<int:cart_id>', methods=["POST"])
+@update_cart_bp.route('/updateCartQuantity/<int:cart_id>', methods=["POST"])
 @require_login 
 def updateCartQuantity(cart_id):
     user = get_logged_user()

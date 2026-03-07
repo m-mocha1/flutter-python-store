@@ -1,7 +1,4 @@
-from models.product_model import Product
-from models.cart_model import Cart
-
-def add_to_cart(db, User, Product, Cart, user_id, product_id, requested_qty):   
+def add_to_cart(db, Product, Cart, user_id, product_id, requested_qty):   
     
     product = Product.query.filter_by(_id=product_id).first()
     if not product:

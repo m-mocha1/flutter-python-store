@@ -5,7 +5,7 @@ from flask import g
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
 
 
-def add_Product(db,Product, product_name, price, description, stock, user, image_url,file):
+def add_Product(db,Product, product_name, price, description, stock, user, image_url):
     if g.user is None:
         return "user not found"
 
@@ -27,7 +27,7 @@ def add_Product(db,Product, product_name, price, description, stock, user, image
 
 
 
-def allowed_file(filename, upload_folder):
+def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 

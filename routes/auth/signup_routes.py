@@ -17,7 +17,7 @@ def sign():
 
         if ok :
             login_user(username)
-            return redirect(url_for('home'))
+            return redirect(url_for('home.home'))
         
         flash(message,"error")
         return render_template('login/sign.html')

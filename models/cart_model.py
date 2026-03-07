@@ -1,4 +1,3 @@
-# models/cart_model.py
 from extensions import db
 from datetime import datetime
 
@@ -11,9 +10,7 @@ class Cart(db.Model):
     quantity = db.Column(db.Integer, default=1, nullable=False)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
-    user = db.relationship("User", backref="cart_items")
-    product = db.relationship("Product", backref="in_cart")
+    # Relationships are defined in User and Product models with back-ref
     
     def __init__(self, user_id, product_id, quantity=1):
         """Initialize cart item"""

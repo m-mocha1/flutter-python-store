@@ -17,7 +17,7 @@ def login():
 
        if ok :
           login_user(username) 
-          return redirect(url_for('home')) # if error
+          return redirect(url_for('home.home')) # if error
        
        flash(message,"error")
 

@@ -32,7 +32,7 @@
             <!-- Product Card -->
               {% for product in products %}
             <div class="product-card">
-                <a href="{{ url_for('product.productPage', product_id=product._id) }}" class="text-link">
+                <a href="{{ url_for('product_detail.productPage', product_id=product._id) }}" class="text-link">
                     <div class="product-image">
                         <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
                     </div>
@@ -40,7 +40,7 @@
                         <h3>{{ product.product_name }}</h3>
                         <p class="price">{{ product.price }}₪</p>
                         {% if product.stock > 0 %}
-                         <form action="{{ url_for('cart.addToCart', product_id=product._id) }}" method="post">
+                         <form action="{{ url_for('cart.myCart', product_id=product._id) }}" method="post">
                             <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                          </form>
                          {% else %}

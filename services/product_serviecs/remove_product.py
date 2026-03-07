@@ -4,20 +4,16 @@ from flask import g
 
 def remove_Product(User, Product, Cart, username, product_id, db, upload_folder):
     
-    user = get_loged_user()
 
     if g.user is None:
         return "user not found"
-
-    if user is None:
-        return(False,"user not found")
 
     product = Product.query.filter_by(_id=product_id).first()
     
     if product is None:
         return(False,"product not found")
 
-    if product and product.user_id == user._id:
+    if product and product.user_id == g.user._id:
         delete_image_file(product.image_url,upload_folder)
         
         Cart.query.filter_by(product_id=product._id).delete()
