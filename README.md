@@ -397,13 +397,14 @@ def profile():
 ```python
 from functools import wraps
 
-def require_login(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if g.user is None:
-            return redirect(url_for("login.login"))
-        return f(*args, **kwargs)
-    return decorated_function
+def require_login(f):  # f is the func being decorated
+    @wraps(f) # keep the original func name 
+    def decorated_function(*args, **kwargs): # capture any args passed to route
+        if g.user is None: 
+            return redirect(url_for("login.login")) #the check start before running the func (if None) redirect
+        return f(*args, **kwargs) # if logged in we run the original route 
+    return decorated_function # return the original func
+    
 ```
 
 ---
@@ -854,17 +855,12 @@ user_id = db.Column(db.Integer, db.ForeignKey('users._id'), nullable=False)
 
 ## Summary
 
-This project demonstrates how to build a professional Flask application using SOLID principles. By following these patterns:
-
 - **Code is easier to understand** - Each file has one responsibility
 - **Code is easier to test** - Utilities are isolated and testable
 - **Code is easier to modify** - Changes don't break other parts
 - **Code is easier to scale** - Adding features doesn't require rewriting
 
 The key insight: **Organize by responsibility, not by feature.**
-
-Good luck with your development journey! 🚀
-
 ---
 
 *Last Updated: March 2026*
