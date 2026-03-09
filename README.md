@@ -849,8 +849,6 @@ user_id = db.Column(db.Integer, db.ForeignKey('users._id'), nullable=False)
 - **Flask Documentation:** https://flask.palletsprojects.com/
 - **SQLAlchemy Documentation:** https://docs.sqlalchemy.org/
 - **SOLID Principles:** https://en.wikipedia.org/wiki/SOLID
-- **Clean Code:** "Clean Code" by Robert C. Martin
-
 ---
 
 ## Summary
