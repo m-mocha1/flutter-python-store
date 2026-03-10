@@ -78,34 +78,6 @@ def send_email(email):
 
 **Meaning:** Add new features WITHOUT changing existing code.
 
-**Bad Example:**
-```python
-# Modifying function every time you add payment method
-def process_payment(method):
-    if method == 'credit_card':
-        # process credit card
-    elif method == 'paypal':
-        # process paypal
-    elif method == 'stripe':
-        # process stripe
-    # Keep modifying this function!
-```
-
-**Good Example:**
-```python
-# Create base class and extend it
-class PaymentProcessor:
-    def process(self): pass
-
-class CreditCardProcessor(PaymentProcessor):
-    def process(self):
-        # credit card logic
-
-class PayPalProcessor(PaymentProcessor):
-    def process(self):
-        # paypal logic
-```
-
 **In This Project:**
 - Add new routes in separate files without modifying existing routes
 - Add new utils without changing existing code
@@ -126,28 +98,6 @@ class PayPalProcessor(PaymentProcessor):
 
 ### I - Interface Segregation Principle
 **Clients should not depend on interfaces they don't use.**
-
-**Bad Example:**
-```python
-class UserInterface:
-    def authenticate(self): pass
-    def save(self): pass
-    def send_email(self): pass
-    def delete(self): pass
-    def update(self): pass
-    # 20 more methods...
-```
-
-**Good Example:**
-```python
-# Smaller, focused interfaces
-class Authenticatable:
-    def authenticate(self): pass
-
-class Storable:
-    def save(self): pass
-    def delete(self): pass
-```
 
 **In This Project:**
 - `utils/auth.py` = Only auth functions
